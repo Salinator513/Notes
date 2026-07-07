@@ -1,0 +1,4 @@
+.grindnotes-url
+notes/.trash/
+notes/scratch/*
+!notes/scratch/.gitkeep

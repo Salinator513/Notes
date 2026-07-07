@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Usage</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1' y='1' width='14' height='14' rx='4' fill='%23d97757'/%3E%3Cpath d='M4.5 5.5h7M4.5 8h7M4.5 10.5h4.5' stroke='%231f1e1c' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  :root{--bg:#262624;--card:#1f1e1c;--line:rgba(255,255,255,.07);--txt:#e8e6df;--mut:#98948a;--dim:#6e6a62;--acc:#d97757;--hov:rgba(255,255,255,.05);--on:rgba(255,255,255,.09)}
+  *{box-sizing:border-box}
+  body{font:12px/1.45 -apple-system,"Segoe UI",system-ui,sans-serif;margin:0;padding:12px;background:var(--bg);color:var(--txt)}
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
+  ::-webkit-scrollbar-track{background:transparent}
+  #tabs{display:flex;gap:4px;margin-bottom:10px}
+  .tab{font:600 11.5px inherit;font-family:inherit;padding:5px 12px;background:none;color:var(--mut);border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:background .12s,color .12s}
+  .tab:hover{background:var(--hov);color:var(--txt)}
+  .tab.on{background:var(--on);color:var(--txt)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:6px}
+  .card:first-of-type{border-color:rgba(217,119,87,.35)}
+  .head{display:flex;align-items:baseline;gap:10px}
+  .head b{flex:1;font-size:12px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .head time{font-size:9.5px;color:var(--dim);white-space:nowrap;letter-spacing:.02em}
+  .stats{display:flex;gap:16px;margin-top:5px}
+  .stat{font-size:10.5px;color:var(--mut)}
+  .stat b{font-size:12.5px;font-weight:700;color:var(--acc);margin:0 1px}
+  .stat span{color:var(--dim);font-size:10px}
+  .empty{color:var(--dim);text-align:center;padding:24px 0}
+</style>
+</head>
+<body>
+<div id="tabs">
+  <button class="tab on" data-g="claude">Claude Code</button>
+  <button class="tab" data-g="codex">Codex</button>
+</div>
+<div id="list"></div>
+<script src="/cursor.js"></script>
+<script>
+let group = 'claude';
+const groupOf = (src) => {
+  const s = String(src || '').toLowerCase();
+  if (s.includes('cowork')) return null;            // cowork is gone — never shown
+  return s.includes('codex') ? 'codex' : 'claude';
+};
+const fdate = (ts) => {
+  const d = new Date(ts);
+  return isNaN(d) ? '' : d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).toLowerCase();
+};
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
+  group = b.dataset.g;
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === b));
+  tick();
+});
+function stat(label, delta, abs){
+  if (delta == null && abs == null) return '';
+  const d = document.createElement('div'); d.className = 'stat';
+  const b = document.createElement('b');
+  const s = document.createElement('span');
+  if (delta != null && delta >= 0){
+    b.textContent = '+' + delta + '%';
+    if (abs != null) s.textContent = ' · ' + abs + '%';
+  } else {
+    b.textContent = abs + '%';                       // no baseline (or reset): show the level
+  }
+  d.append(label + ' ', b, s);
+  return d;
+}
+async function tick(){
+  let s; try { s = await fetch('/api/state').then(r=>r.json()); } catch { return; }
+  const h = (s.usage && s.usage.history || []).filter(e => groupOf(e.source) === group);
+  const list = document.getElementById('list'); list.innerHTML = '';
+  if (!h.length){
+    const d = document.createElement('div'); d.className = 'empty';
+    d.textContent = 'no ' + (group === 'claude' ? 'claude code' : group) + ' usage logged yet';
+    return list.appendChild(d);
+  }
+  // history is appended chronologically; walk it to get each prompt's delta, show newest first
+  const cards = h.map((e, i) => {
+    const prev = i > 0 ? h[i - 1] : null;
+    const dPlan = (prev && e.plan_pct != null && prev.plan_pct != null) ? e.plan_pct - prev.plan_pct : null;
+    const dCtx  = (prev && e.context_pct != null && prev.context_pct != null) ? e.context_pct - prev.context_pct : null;
+    const card = document.createElement('div'); card.className = 'card';
+    const head = document.createElement('div'); head.className = 'head';
+    const b = document.createElement('b'); b.textContent = e.note || e.source || 'untitled prompt';
+    const t = document.createElement('time'); t.textContent = fdate(e.ts);
+    head.append(b, t);
+    const stats = document.createElement('div'); stats.className = 'stats';
+    const u = stat('usage', dPlan, e.plan_pct);
+    const c = stat('context', dCtx, e.context_pct);
+    if (u) stats.appendChild(u);
+    if (c) stats.appendChild(c);
+    card.appendChild(head);
+    if (stats.childNodes.length) card.appendChild(stats);
+    return card;
+  }).reverse();
+  for (const c of cards.slice(0, 40)) list.appendChild(c);
+}
+tick(); setInterval(tick, 2000);
+</script>
+</body>
+</html>

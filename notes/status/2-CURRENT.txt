@@ -1,0 +1,18 @@
+CURRENT — 2026-07-07 (Claude Code, cloud)
+
+GrindNotes now lives in this repo (Salinator513/Notes) — built from the grindquest
+tools/grindnotes base since the local install isn't reachable from the cloud session.
+
+This turn:
+- Cursor: full 360° spins now possible (no angle clamp; hard flick loops, then gravity
+  drops it back and it settles). Physics in cursor.js, shared by both pages.
+- Usage window reworked: one card per prompt — prompt title, date in little letters on
+  the right, then just usage +Δ% and context +Δ%. No weekly block, no description line.
+- Cowork removed from the entire app: prompt targets are Code + Codex only; usage tabs
+  are Claude Code / Codex; cowork-sourced usage entries are never shown.
+- Turn summaries: scrolling list, ~3 visible at a time.
+- Server on port 7718 with /api/delete (scratch notes, moved to notes/.trash, ✕ on hover).
+- Bug fixes: failed saves retry instead of silently dropping edits, unload saves via
+  keepalive, path-prefix check hardened, missing-file opens no longer blank the app.
+
+Awaiting Sasha: cursor feel check (spin + settle), usage panel verdict.

@@ -1,0 +1,11 @@
+{
+  "history": [
+    {
+      "ts": "2026-07-07T19:50:00Z",
+      "source": "claude-code",
+      "context_pct": 40,
+      "plan_pct": null,
+      "note": "Notes repo bootstrap — usage panel, 360 cursor, cowork removed"
+    }
+  ]
+}
