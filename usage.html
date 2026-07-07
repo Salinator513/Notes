@@ -33,9 +33,28 @@
   <button class="tab" data-g="codex">Codex</button>
 </div>
 <div id="list"></div>
-<script src="/cursor.js"></script>
+<script src="cursor.js"></script>
 <script>
-let group = 'claude';
+let group = 'claude', STATIC = false, pollTimer = null;
+// local server → /api/state; GitHub Pages mirror → committed snapshot
+async function getState(){
+  if (!STATIC){
+    try { return await fetch('/api/state').then(r=>r.json()); } catch {}
+    try {
+      const r = await fetch('notes/index.json', {cache:'no-store'});
+      if (r.ok){
+        STATIC = true;
+        clearInterval(pollTimer); pollTimer = setInterval(tick, 30000);
+        return await r.json();
+      }
+    } catch {}
+    return null;
+  }
+  try {
+    const r = await fetch('notes/index.json', {cache:'no-store'});
+    return r.ok ? await r.json() : null;
+  } catch { return null; }
+}
 const groupOf = (src) => {
   const s = String(src || '').toLowerCase();
   if (s.includes('cowork')) return null;            // cowork is gone — never shown
@@ -65,7 +84,8 @@ function stat(label, delta, abs){
   return d;
 }
 async function tick(){
-  let s; try { s = await fetch('/api/state').then(r=>r.json()); } catch { return; }
+  const s = await getState();
+  if (!s) return;
   const h = (s.usage && s.usage.history || []).filter(e => groupOf(e.source) === group);
   const list = document.getElementById('list'); list.innerHTML = '';
   if (!h.length){
@@ -94,7 +114,7 @@ async function tick(){
   }).reverse();
   for (const c of cards.slice(0, 40)) list.appendChild(c);
 }
-tick(); setInterval(tick, 2000);
+tick(); pollTimer = setInterval(tick, 2000);
 </script>
 </body>
 </html>

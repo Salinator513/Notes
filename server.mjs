@@ -80,7 +80,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && (u.pathname === '/' || u.pathname === '/index.html')) {
       return page(res, 'ui.html', 'text/html; charset=utf-8');
     }
-    if (req.method === 'GET' && u.pathname === '/usage') {
+    if (req.method === 'GET' && (u.pathname === '/usage' || u.pathname === '/usage.html')) {
       return page(res, 'usage.html', 'text/html; charset=utf-8');
     }
     if (req.method === 'GET' && u.pathname === '/cursor.js') {
@@ -140,7 +140,25 @@ const server = http.createServer(async (req, res) => {
     json(res, 500, { error: String(e.message || e) });
   }
 });
-server.listen(PORT, '127.0.0.1', () => {
-  try { fs.writeFileSync(path.join(ROOT, '.grindnotes-url'), `http://127.0.0.1:${PORT}/`); } catch {}
-  console.log(`GrindNotes running at http://127.0.0.1:${PORT}/  (notes folder: ${NOTES})`);
-});
+// --lan exposes the server to other devices on the local network (phone etc.)
+const HOST = process.argv.includes('--lan') ? '0.0.0.0' : '127.0.0.1';
+function start(port, retriesLeft){
+  const onErr = (e) => {
+    if (e.code === 'EADDRINUSE' && retriesLeft > 0){
+      console.log(`port ${port} is busy — trying ${port + 1}…`);
+      start(port + 1, retriesLeft - 1);
+    } else {
+      console.error('GrindNotes failed to start:', e.message);
+      process.exit(1);
+    }
+  };
+  server.once('error', onErr);
+  server.listen(port, HOST, () => {
+    server.removeListener('error', onErr);
+    const url = `http://127.0.0.1:${port}/`;
+    try { fs.writeFileSync(path.join(ROOT, '.grindnotes-url'), url); } catch {}
+    console.log(`GrindNotes running at ${url}  (notes folder: ${NOTES})`);
+    if (HOST === '0.0.0.0') console.log('LAN mode: also reachable from other devices on your network.');
+  });
+}
+start(PORT, 10);

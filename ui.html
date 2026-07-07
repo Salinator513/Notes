@@ -56,6 +56,9 @@
   #ptarget:focus,#pselect:hover{background:var(--hov);color:var(--txt)}
   #pbox{flex:1;resize:none;border:1px solid var(--line);border-radius:8px;outline:none;padding:6px 10px;font:12px/1.5 inherit;font-family:inherit;background:var(--bg);color:var(--txt);caret-color:var(--acc);max-height:110px;transition:border-color .12s}
   #pbox:focus{border-color:rgba(217,119,87,.5)}
+
+  /* static mirror (GitHub Pages, no server): read-only */
+  body.static #newBtn,body.static #pbar,body.static .del{display:none}
 </style>
 </head>
 <body>
@@ -71,7 +74,7 @@
   <div id="bar">
     <span id="title">–</span>
     <span id="saved"></span>
-    <button id="usageBtn" onclick="window.open('/usage','usage','width=340,height=460')">Usage</button>
+    <button id="usageBtn" onclick="window.open('usage.html','usage','width=340,height=460')">Usage</button>
   </div>
   <div id="view"></div>
   <textarea id="edit" spellcheck="false"></textarea>
@@ -84,18 +87,51 @@
     <button id="pselect">Select</button>
   </div>
 </div>
-<script src="/cursor.js"></script>
+<script src="cursor.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 let state = null, sel = null, selMtime = 0, editing = false, dirty = false, saveTimer = null;
-let showAllScratch = false;
+let showAllScratch = false, STATIC = false, pollTimer = null;
 const COLLAPSE = 5;
 const FRESH_MS = 24 * 3600 * 1000;
 const PROMPTS = [
   { file: 'prompts/code.md',  label: 'Code prompt' },
   { file: 'prompts/codex.md', label: 'Codex prompt' },
 ];
-const editable = (name) => name.startsWith('scratch/') || name.startsWith('prompts/');
+const editable = (name) => !STATIC && (name.startsWith('scratch/') || name.startsWith('prompts/'));
+
+// With the local server we talk to /api/*; on GitHub Pages there is no server,
+// so we fall back to the committed snapshot (notes/index.json) and go read-only.
+async function getState(){
+  if (!STATIC){
+    try { return await fetch('/api/state').then(r=>r.json()); } catch {}
+    try {
+      const r = await fetch('notes/index.json', {cache:'no-store'});
+      if (r.ok){
+        STATIC = true;
+        document.body.classList.add('static');
+        flash('read-only mirror — run GrindNotes.bat locally to edit');
+        clearInterval(pollTimer); pollTimer = setInterval(refresh, 30000);
+        return await r.json();
+      }
+    } catch {}
+    return null;
+  }
+  try {
+    const r = await fetch('notes/index.json', {cache:'no-store'});
+    return r.ok ? await r.json() : null;
+  } catch { return null; }
+}
+async function apiFile(name){
+  if (!STATIC){
+    try { return await fetch('/api/file?name=' + encodeURIComponent(name)).then(r=>r.json()); }
+    catch { return { error: 'offline' }; }
+  }
+  try {
+    const r = await fetch('notes/' + name, {cache:'no-store'});
+    return r.ok ? { content: await r.text(), mtime: 0 } : { error: 'not found' };
+  } catch { return { error: 'offline' }; }
+}
 
 function fmt(ms){ const d = new Date(ms); return isNaN(d) ? '' : d.toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
 
@@ -126,13 +162,16 @@ function renderLists(){
     b.addEventListener('dragleave', () => b.classList.remove('drop'));
     b.addEventListener('drop', async (e) => {
       e.preventDefault(); b.classList.remove('drop');
+      if (STATIC) return;
       const src = e.dataTransfer.getData('text/gn-file');
       if (!src) return;
-      const r = await fetch('/api/file?name=' + encodeURIComponent(src)).then(r=>r.json());
-      if (r.content != null){
-        await fetch('/api/append', {method:'POST', body: JSON.stringify({name: p.file, content: '\n---\n' + r.content.trim()})});
-        refresh();
-      }
+      try {
+        const r = await apiFile(src);
+        if (r.content != null){
+          await fetch('/api/append', {method:'POST', body: JSON.stringify({name: p.file, content: '\n---\n' + r.content.trim()})});
+          refresh();
+        }
+      } catch {}
     });
     pl.appendChild(b);
   }
@@ -184,9 +223,8 @@ async function del(t){
 }
 async function open(name, label){
   if (dirty) await saveNow();
-  let r;
-  try { r = await fetch('/api/file?name=' + encodeURIComponent(name)).then(r=>r.json()); }
-  catch { flash('server offline?', true); return; }
+  const r = await apiFile(name);
+  if (r.error === 'offline'){ flash('server offline?', true); return; }
   if (r.error){ flash('missing: ' + name, true); refresh(); return; }
   sel = name; selMtime = r.mtime; editing = editable(name);
   const firstLine = (r.content || '').split('\n').find(l => l.trim());
@@ -266,14 +304,16 @@ $('pselect').onclick = () => {
   open(f, p && p.label);
 };
 async function refresh(){
-  try { state = await fetch('/api/state').then(r=>r.json()); } catch { return; }
+  const s = await getState();
+  if (!s) return;
+  state = s;
   renderLists();
-  if (sel && !dirty){
+  if (sel && !dirty && !STATIC){
     const entry = sel.startsWith('status/') ? state.status[sel.slice(7)]
       : [...(state.turns||[]), ...(state.scratch||[]), ...(state.prompts||[])].find(t => t.file === sel);
     const m = entry && (entry.mtime ?? 0);
     if (m && m > selMtime){
-      const r = await fetch('/api/file?name=' + encodeURIComponent(sel)).then(r=>r.json());
+      const r = await apiFile(sel);
       if (r.error) return;
       selMtime = r.mtime;
       if (editing) $('edit').value = r.content; else $('view').textContent = r.content;
@@ -287,7 +327,7 @@ window.addEventListener('beforeunload', () => {
   }
 });
 refresh().then(() => { if (state) open('status/2-CURRENT.txt', 'current'); });
-setInterval(refresh, 1500);
+pollTimer = setInterval(refresh, 1500);
 </script>
 </body>
 </html>
