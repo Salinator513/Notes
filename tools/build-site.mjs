@@ -65,4 +65,5 @@ let usage = { history: [] };
 try { usage = JSON.parse(fs.readFileSync(path.join(NOTES, 'usage.json'), 'utf8')); } catch {}
 const state = { static: true, status, turns: listDir('turns'), scratch: listDir('scratch'), prompts: listDir('prompts'), usage };
 fs.writeFileSync(path.join(OUT, 'notes', 'index.json'), JSON.stringify(state));
+fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
 console.log('built static mirror at', OUT);
