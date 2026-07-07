@@ -15,11 +15,14 @@ This turn:
 - Bug fixes: failed saves retry instead of silently dropping edits, unload saves via
   keepalive, path-prefix check hardened, missing-file opens no longer blank the app.
 
-"Can't be reached" fix (same day): GrindNotes is now ALSO a live website — a read-only
-mirror on GitHub Pages at https://salinator513.github.io/Notes/ (status, turn summaries,
-usage, cursor all work; editing needs the local server). The localhost link only works
-while the server runs on the PC: pull the branch, double-click GrindNotes.bat — the
-launcher now checks for Node, waits for the server, opens the right port, and shows the
-error instead of vanishing if something fails. If 7718 is taken it hops to the next port.
+"Can't be reached" fix (same day): GrindNotes becomes a live website — a read-only
+mirror is deployed to the gh-pages branch on every push, serving at
+https://salinator513.github.io/Notes/ (status, turn summaries, usage, cursor all work;
+editing needs the local server). ONE manual step remains (admin-only, agents can't):
+repo Settings → Pages → Source "Deploy from a branch" → gh-pages / root → Save.
+The localhost link only works while the server runs on the PC: pull the branch,
+double-click GrindNotes.bat — the launcher now checks for Node, waits for the server,
+opens the right port, and shows the error instead of vanishing. If 7718 is taken it
+hops to the next port; --lan mode reaches it from a phone on the same wifi.
 
 Awaiting Sasha: cursor feel check (spin + settle), usage panel verdict.
