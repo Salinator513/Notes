@@ -15,7 +15,16 @@ This turn:
 - Bug fixes: failed saves retry instead of silently dropping edits, unload saves via
   keepalive, path-prefix check hardened, missing-file opens no longer blank the app.
 
-"Can't be reached" fix (same day): GrindNotes becomes a live website — a read-only
+CLARIFIED (2026-07-07 ~4:44 PM): "the website" = Sasha's LOCAL install at
+Documents\Codex\2026-07-06\i-wa\outputs\GrindNotes → http://127.0.0.1:7717/ (orange
+redesign, grouped notes, corner Usage/Type controls). Fix there: relaunch
+GrindNotes.bat / node server.mjs in that folder. This repo + the Pages mirror is a
+separate cloud rebuild. NEXT UP: merge the two into a new version — Sasha's design
+leading, this repo's style second, this repo's functionality underneath. Blocked on
+getting the local ui.html/usage.html/server.mjs into this repo (local agent push,
+GitHub web upload, or paste into chat).
+
+Earlier "Can't be reached" work: GrindNotes becomes a live website — a read-only
 mirror is deployed to the gh-pages branch on every push, serving at
 https://salinator513.github.io/Notes/ (status, turn summaries, usage, cursor all work;
 editing needs the local server). ONE manual step remains (admin-only, agents can't):

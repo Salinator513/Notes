@@ -13,6 +13,13 @@
       "context_pct": 55,
       "plan_pct": null,
       "note": "Can't be reached — Pages mirror + hardened launcher"
+    },
+    {
+      "ts": "2026-07-07T20:55:00Z",
+      "source": "claude-code",
+      "context_pct": 65,
+      "plan_pct": null,
+      "note": "Two GrindNotes clarified — merge plan, waiting on local files"
     }
   ]
 }
