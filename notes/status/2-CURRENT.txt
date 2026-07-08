@@ -14,6 +14,8 @@ corner Usage/Type rail, collapsible sidebar) + the cloud rebuild's functionality
   mode for phones, launcher fails loud instead of silent, msedge/chrome app window.
 - Same app doubles as the public read-only mirror (GitHub Pages, auto-deployed).
 
-Sasha still needs to: pull this branch on the PC and copy ui.html, usage.html,
-server.mjs, GrindNotes.bat, GrindNotes-App.vbs over the local install (keep the
-install's notes/ folder!). Then feel-check the cursor + usage window.
+To update the local install (two clicks, no typing): download
+https://salinator513.github.io/Notes/Update-GrindNotes.bat and double-click it.
+It swaps in the 5 app files, never touches notes/, and relaunches GrindNotes.
+Then feel-check the cursor + usage window. Keep the file — double-click it any
+time to pull the latest version.

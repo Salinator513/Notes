@@ -27,6 +27,13 @@
       "context_pct": 78,
       "plan_pct": null,
       "note": "The new GrindNotes — merge done, cowork gone, 360 cursor"
+    },
+    {
+      "ts": "2026-07-08T01:35:00Z",
+      "source": "claude-code",
+      "context_pct": 84,
+      "plan_pct": null,
+      "note": "One-click updater for the local install"
     }
   ]
 }

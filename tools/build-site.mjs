@@ -52,7 +52,9 @@ const copyDir = (from, to) => {
 
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
-for (const f of ['ui.html', 'usage.html']) fs.copyFileSync(path.join(ROOT, f), path.join(OUT, f));
+// app + launcher files ride along so the site doubles as the download source
+for (const f of ['ui.html', 'usage.html', 'server.mjs', 'GrindNotes.bat', 'GrindNotes-App.vbs', 'Update-GrindNotes.bat'])
+  fs.copyFileSync(path.join(ROOT, f), path.join(OUT, f));
 fs.copyFileSync(path.join(ROOT, 'ui.html'), path.join(OUT, 'index.html'));
 copyDir(NOTES, path.join(OUT, 'notes'));
 
