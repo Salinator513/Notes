@@ -3,3 +3,4 @@ dist/
 notes/.trash/
 notes/scratch/*
 !notes/scratch/.gitkeep
+.grindnotes-pid
