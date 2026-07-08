@@ -79,3 +79,7 @@ Assistant: Your PC is the one machine I genuinely can't reach — that's physics
 User: ur on the app version does that change anything?
 
 Assistant: For this conversation, no — this session runs in a cloud container no matter which app you view it from (phone, web, desktop), so it still can't reach your PC's files. But if you're on the DESKTOP app on your PC, that changes something real: you can start a NEW Claude Code session there, and that one runs ON your machine — it can update the GrindNotes install itself, no updater file needed. Tell it: "Update my GrindNotes install at C:\Users\Sasha\Documents\Codex\2026-07-06\i-wa\outputs\GrindNotes from the GitHub repo Salinator513/Notes branch claude/cursor-swing-physics-bstakk — replace ui.html, usage.html, server.mjs, GrindNotes.bat, GrindNotes-App.vbs, don't touch notes/, then relaunch GrindNotes.bat." On the phone app, nothing changes — the two-click updater stays the easiest path.
+
+User: I'm on desktop app go go go
+
+Assistant: Checked for a remote door onto the PC first (list_environments: only cloud environments — no local pool), so: in the desktop app press New Session, choose to run it ON THIS COMPUTER (any folder works), paste the update instruction block, and approve when it asks to run commands. The local session swaps the 5 app files from the public repo, leaves notes/ alone, relaunches GrindNotes.bat. This cloud session stays the brain for building; the local one is just hands for the swap.
