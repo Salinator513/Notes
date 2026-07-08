@@ -1,0 +1,46 @@
+{
+  "history": [
+    {
+      "ts": "2026-07-07T19:50:00Z",
+      "source": "claude-code",
+      "context_pct": 40,
+      "plan_pct": null,
+      "note": "Notes repo bootstrap — usage panel, 360 cursor, cowork removed"
+    },
+    {
+      "ts": "2026-07-07T20:20:00Z",
+      "source": "claude-code",
+      "context_pct": 55,
+      "plan_pct": null,
+      "note": "Can't be reached — Pages mirror + hardened launcher"
+    },
+    {
+      "ts": "2026-07-07T20:55:00Z",
+      "source": "claude-code",
+      "context_pct": 65,
+      "plan_pct": null,
+      "note": "Two GrindNotes clarified — merge plan, waiting on local files"
+    },
+    {
+      "ts": "2026-07-08T01:05:00Z",
+      "source": "claude-code",
+      "context_pct": 78,
+      "plan_pct": null,
+      "note": "The new GrindNotes — merge done, cowork gone, 360 cursor"
+    },
+    {
+      "ts": "2026-07-08T01:35:00Z",
+      "source": "claude-code",
+      "context_pct": 84,
+      "plan_pct": null,
+      "note": "One-click updater for the local install"
+    },
+    {
+      "ts": "2026-07-08T02:05:00Z",
+      "source": "claude-code",
+      "context_pct": 88,
+      "plan_pct": null,
+      "note": "Handoff to local session + Notepad font"
+    }
+  ]
+}

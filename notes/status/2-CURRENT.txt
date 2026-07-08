@@ -1,0 +1,21 @@
+CURRENT — 2026-07-07 (Claude Code, cloud)
+
+THE MERGE IS DONE. The repo root app is now the combined GrindNotes: Sasha's local
+orange design (grouped note Sets, drag between Sets, context menus, prompt dock,
+corner Usage/Type rail, collapsible sidebar) + the cloud rebuild's functionality:
+
+- Cursor: full 360° spins on hard flicks (4 verified wrap-arounds in testing), still
+  hangs/settles like a heavy pendulum. Knobs in initCursor() in ui.html.
+- Cowork removed ENTIRELY: targets Code + Codex, tabs Claude / Codex, no cowork
+  icons or styling anywhere.
+- Usage window: one card per prompt — title, date small on the right, then
+  Usage +Δ% and Context +Δ%. No weekly, no descriptions.
+- Delete → notes/.trash (recoverable), server hops ports if 7717 is busy, --lan
+  mode for phones, launcher fails loud instead of silent, msedge/chrome app window.
+- Same app doubles as the public read-only mirror (GitHub Pages, auto-deployed).
+
+To update the local install (two clicks, no typing): download
+https://salinator513.github.io/Notes/Update-GrindNotes.bat and double-click it.
+It swaps in the 5 app files, never touches notes/, and relaunches GrindNotes.
+Then feel-check the cursor + usage window. Keep the file — double-click it any
+time to pull the latest version.

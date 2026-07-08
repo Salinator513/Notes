@@ -1,0 +1,7 @@
+GOALS — updated 2026-07-07
+
+1. Sasha: update the local install from this repo (copy the 5 app files, keep notes/).
+2. Sasha: feel-check the 360° cursor and the per-prompt usage cards — iterate on feel.
+3. Sync docs/CHATLOG-SYNC-2026-07-07.md into grindquest/CHATLOG-GRINDWAVE.md from a
+   session that can push grindquest.
+4. Retire the stale grindquest tools/grindnotes copy (this repo is canonical now).

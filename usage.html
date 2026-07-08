@@ -1,0 +1,58 @@
+<!doctype html>
+<html spellcheck="false">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<title>Usage</title>
+<style>
+:root{--bg:#fff0cf;--panel:#ffe2b4;--ink:#321907;--mut:#74451f;--line:rgba(61,32,12,.18);--active:#7a4720}*{box-sizing:border-box;margin:0}html,body{min-height:100%}body{font:700 13.5px/1.35 Nunito,-apple-system,Segoe UI,system-ui,sans-serif;background:var(--bg);color:var(--ink);padding:10px;overflow:auto}.top{position:sticky;top:0;z-index:2;background:linear-gradient(180deg,var(--bg) 70%,rgba(255,240,207,0));padding-bottom:8px}.head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.title{font-size:15px;font-weight:800}.tabs{display:flex;gap:6px}.tab{height:30px;border:1px solid var(--line);border-radius:8px;background:rgba(116,69,31,.08);color:var(--ink);display:flex;align-items:center;gap:6px;padding:0 9px;font:800 12px/1 Nunito,-apple-system,Segoe UI,system-ui,sans-serif;cursor:pointer}.tab.on{background:#fff8e8;border-color:rgba(61,32,12,.32);box-shadow:0 0 0 2px rgba(122,71,32,.18),inset 0 -3px 0 var(--active)}.aiIcon{width:19px;height:19px;min-width:19px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;color:#fff6e6}.aiIcon svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.code{background:#6f627e}.codex{background:#58724d}.entries{display:flex;flex-direction:column;gap:8px}.card{background:rgba(255,255,255,.24);border:1px solid var(--line);border-radius:9px;padding:9px 10px;display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start}.card.codexCard{background:rgba(222,238,213,.28)}.lines{display:grid;gap:3px;min-width:0}.rowTop{display:flex;align-items:baseline;gap:8px;min-width:0}.ttl{flex:1;min-width:0;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.when{font-size:10.5px;color:var(--mut);white-space:nowrap;font-weight:800}.metric{font-size:13px}.mut{color:var(--mut);font-weight:700;font-size:12px}.empty{color:var(--mut);padding:14px 2px}
+</style>
+</head>
+<body>
+<div class="top"><div class="head"><div class="title">Usage</div><div class="tabs"><button class="tab on" data-g="claude"><span class="slot" data-k="code"></span><span>Claude</span></button><button class="tab" data-g="codex"><span class="slot" data-k="codex"></span><span>Codex</span></button></div></div></div>
+<div id="entries" class="entries"></div>
+<script>
+const ICONS={code:'<svg viewBox="0 0 24 24"><path d="M12 3.5v17"/><path d="M5.2 6.8 18.8 17.2"/><path d="M18.8 6.8 5.2 17.2"/><path d="M3.8 12h16.4"/></svg>',codex:'<svg viewBox="0 0 24 24"><path d="M8.2 18.5h8.4a4.2 4.2 0 0 0 .5-8.3A6.1 6.1 0 0 0 5.7 12 3.4 3.4 0 0 0 8.2 18.5Z"/><path d="m9.1 11.3 2.2 2.2-2.2 2.2"/><path d="M13.4 15.7h3.2"/></svg>'};
+function icon(k){return '<span class="aiIcon '+k+'">'+ICONS[k]+'</span>'}
+document.querySelectorAll('.slot').forEach(s=>s.outerHTML=icon(s.dataset.k));
+let group='claude',STATIC=false,pollTimer=null;
+const groupOf=s=>String(s||'').toLowerCase().includes('codex')?'codex':'claude';
+const keyOf=s=>String(s||'').toLowerCase().includes('codex')?'codex':'code';
+function when(ts){if(!ts)return '-';const d=new Date(ts);return (d.getMonth()+1)+'/'+d.getDate()+' '+new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit',hour12:true}).format(d)}
+// local server -> /api/state; GitHub Pages mirror -> committed snapshot
+async function getState(){
+  if(!STATIC){try{return await fetch('/api/state').then(r=>r.json())}catch{}}
+  try{const r=await fetch('notes/index.json',{cache:'no-store'});if(r.ok){if(!STATIC){STATIC=true;clearInterval(pollTimer);pollTimer=setInterval(tick,30000)}return await r.json()}}catch{}
+  return null;
+}
+// "Usage +3% (62%)" — delta vs this source's previous entry, absolute when no baseline
+function metric(label,cur,prev){
+  if(cur==null)return '';
+  const d=prev!=null?cur-prev:null;
+  const delta=d!=null&&d>=0?'+'+d+'% <span class="mut">('+cur+'%)</span>':cur+'%';
+  return '<div class="metric">'+label+' '+delta+'</div>';
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{group=b.dataset.g;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));tick()});
+async function tick(){
+  const s=await getState();if(!s)return;
+  const h=(s.usage?.history||[]).filter(e=>groupOf(e.source)===group).sort((a,b)=>new Date(b.ts||0)-new Date(a.ts||0));
+  const root=document.getElementById('entries');root.innerHTML='';
+  if(!h.length){root.innerHTML='<div class="empty">No usage logged.</div>';return}
+  h.forEach((e,i)=>{
+    const prev=h[i+1]||null;
+    const k=keyOf(e.source);
+    const d=document.createElement('div');d.className='card '+k+'Card';
+    d.innerHTML=icon(k)+'<div class="lines"><div class="rowTop"><span class="ttl"></span><span class="when">'+when(e.ts)+'</span></div>'+
+      metric('Usage',e.plan_pct??null,prev?prev.plan_pct??null:null)+
+      metric('Context',e.context_pct??null,prev?prev.context_pct??null:null)+
+      '</div>';
+    d.querySelector('.ttl').textContent=e.note||'Untitled prompt';
+    d.querySelector('.ttl').title=e.note||'';
+    root.appendChild(d);
+  });
+}
+tick();pollTimer=setInterval(tick,2000);
+</script>
+</body>
+</html>
