@@ -42,7 +42,8 @@ const listDir = (sub) => {
 const copyDir = (from, to) => {
   fs.mkdirSync(to, { recursive: true });
   for (const f of fs.readdirSync(from)) {
-    if (f.startsWith('.')) continue;
+    // dotfiles stay out of the mirror except the note-groups meta the UI needs
+    if (f.startsWith('.') && f !== '.groups.json') continue;
     const src = path.join(from, f);
     if (fs.statSync(src).isDirectory()) copyDir(src, path.join(to, f));
     else fs.copyFileSync(src, path.join(to, f));
@@ -51,7 +52,7 @@ const copyDir = (from, to) => {
 
 fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(OUT, { recursive: true });
-for (const f of ['ui.html', 'usage.html', 'cursor.js']) fs.copyFileSync(path.join(ROOT, f), path.join(OUT, f));
+for (const f of ['ui.html', 'usage.html']) fs.copyFileSync(path.join(ROOT, f), path.join(OUT, f));
 fs.copyFileSync(path.join(ROOT, 'ui.html'), path.join(OUT, 'index.html'));
 copyDir(NOTES, path.join(OUT, 'notes'));
 

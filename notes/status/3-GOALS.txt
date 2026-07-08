@@ -1,11 +1,7 @@
-GOALS — GrindNotes
+GOALS — updated 2026-07-07
 
-- Cursor feel iteration: knobs in cursor.js — GRAVITY 1.2 (snap back), DRAG_REST .86
-  (heaviness at rest), DRAG_SPIN .95 (how long flick-spins carry), GAIN .45 (kick).
-- Reconcile with the local install: its ui.html had Codex's grouped-notes redesign
-  (grouped notes + per-group prompts) that never reached GitHub. Decide which wins,
-  or re-do grouping on top of this repo version.
-- Retire the grindquest tools/grindnotes copy once this repo is confirmed canonical.
-- Keep zero dependencies; port is 7718 now.
-
-(GRINDWAVE jukebox track, separate: Sasha's listening verdict on the SONG 001 pad.)
+1. Sasha: update the local install from this repo (copy the 5 app files, keep notes/).
+2. Sasha: feel-check the 360° cursor and the per-prompt usage cards — iterate on feel.
+3. Sync docs/CHATLOG-SYNC-2026-07-07.md into grindquest/CHATLOG-GRINDWAVE.md from a
+   session that can push grindquest.
+4. Retire the stale grindquest tools/grindnotes copy (this repo is canonical now).

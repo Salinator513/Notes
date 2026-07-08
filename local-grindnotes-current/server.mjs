@@ -1,6 +1,5 @@
 // GrindNotes — zero-dependency local notes server
 // Run: node server.mjs   (or double-click GrindNotes.bat)
-// Optional: --lan exposes it to other devices on your wifi; GRINDNOTES_PORT overrides the port.
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -9,7 +8,6 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const NOTES = path.join(ROOT, 'notes');
 const PORT = Number(process.env.GRINDNOTES_PORT || 7717);
-const HOST = process.argv.includes('--lan') ? '0.0.0.0' : '127.0.0.1';
 
 // ---- ensure folder layout ----
 const DIRS = ['status', 'turns', 'scratch', 'prompts'];
@@ -23,6 +21,7 @@ seed('status/1-LAST-TURN.txt', 'Nothing logged yet.');
 seed('status/2-CURRENT.txt', 'Nothing logged yet.');
 seed('status/3-GOALS.txt', 'Nothing logged yet.');
 seed('prompts/code.md', 'Code prompt\n\n');
+seed('prompts/cowork.md', 'Cowork prompt\n\n');
 seed('prompts/codex.md', 'Codex prompt\n\n');
 seed('usage.json', JSON.stringify({ history: [] }, null, 2));
 
@@ -91,7 +90,7 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       return res.end(fs.readFileSync(path.join(ROOT, 'ui.html')));
     }
-    if (req.method === 'GET' && (u.pathname === '/usage' || u.pathname === '/usage.html')) {
+    if (req.method === 'GET' && u.pathname === '/usage') {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       return res.end(fs.readFileSync(path.join(ROOT, 'usage.html')));
     }
@@ -131,12 +130,7 @@ const server = http.createServer(async (req, res) => {
       const { name } = await readBody(req);
       if (!name || !name.startsWith('scratch/')) return json(res, 403, { error: 'only scratch notes can be deleted' });
       const p = safe(name);
-      if (fs.existsSync(p)) {
-        // recoverable delete: park it in notes/.trash instead of unlinking
-        const trash = path.join(NOTES, '.trash');
-        fs.mkdirSync(trash, { recursive: true });
-        fs.renameSync(p, path.join(trash, stamp() + '_' + path.basename(p)));
-      }
+      if (fs.existsSync(p)) fs.unlinkSync(p);
       return json(res, 200, { ok: true });
     }
     if (req.method === 'POST' && u.pathname === '/api/new') {
@@ -150,28 +144,9 @@ const server = http.createServer(async (req, res) => {
     json(res, 500, { error: String(e.message || e) });
   }
 });
-
-// hop to the next port if this one is taken (an older instance, another app…)
-function start(port, retriesLeft) {
-  const onErr = (e) => {
-    if (e.code === 'EADDRINUSE' && retriesLeft > 0) {
-      console.log(`port ${port} is busy — trying ${port + 1}…`);
-      start(port + 1, retriesLeft - 1);
-    } else {
-      console.error('GrindNotes failed to start:', e.message);
-      process.exit(1);
-    }
-  };
-  server.once('error', onErr);
-  server.listen(port, HOST, () => {
-    server.removeListener('error', onErr);
-    const url = `http://127.0.0.1:${port}/`;
-    try {
-      fs.writeFileSync(path.join(ROOT, '.grindnotes-url'), url, 'utf8');
-      fs.writeFileSync(path.join(ROOT, '.grindnotes-pid'), String(process.pid), 'utf8');
-    } catch {}
-    console.log(`GrindNotes running at ${url}  (notes folder: ${NOTES})`);
-    if (HOST === '0.0.0.0') console.log('LAN mode: also reachable from other devices on your network.');
-  });
-}
-start(PORT, 10);
+server.listen(PORT, '127.0.0.1', () => {
+  const url = `http://127.0.0.1:${PORT}/`;
+  fs.writeFileSync(path.join(ROOT, '.grindnotes-url'), url, 'utf8');
+  fs.writeFileSync(path.join(ROOT, '.grindnotes-pid'), String(process.pid), 'utf8');
+  console.log(`GrindNotes running at ${url}  (notes folder: ${NOTES})`);
+});

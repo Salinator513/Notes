@@ -20,6 +20,13 @@
       "context_pct": 65,
       "plan_pct": null,
       "note": "Two GrindNotes clarified — merge plan, waiting on local files"
+    },
+    {
+      "ts": "2026-07-08T01:05:00Z",
+      "source": "claude-code",
+      "context_pct": 78,
+      "plan_pct": null,
+      "note": "The new GrindNotes — merge done, cowork gone, 360 cursor"
     }
   ]
 }

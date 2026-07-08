@@ -1,9 +1,5 @@
-LAST TURN — 2026-07-06 (Claude Code, local)
+LAST TURN — 2026-07-07 (Claude Code, cloud)
 
-Fixed the swinging cursor Codex added to GrindNotes that day (it free-spun with no
-gravity). Converted it to a real pendulum: gravity restoring torque so it always falls
-back to the normal pose, heavy damping (.86/frame) so it settles instead of oscillating,
-angle-aware kick from mouse motion, angle clamped to ±95°.
-
-That version lived only on the local install (Documents\Codex\2026-07-06\i-wa\outputs\
-GrindNotes). The ±95° clamp is now superseded — see CURRENT: the cursor can spin full 360°.
+Pages mirror went live at https://salinator513.github.io/Notes/ (Sasha flipped the
+Pages switch; auto-deploys on every push now). Local agent pushed the real local
+GrindNotes source to branch codex/local-grindnotes-current, unblocking the merge.

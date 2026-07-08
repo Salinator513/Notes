@@ -5,13 +5,13 @@ cd /d "%~dp0"
 where node >nul 2>nul
 if errorlevel 1 (
   echo Node.js was not found on PATH.
-  echo Install Node.js ^(https://nodejs.org^) or open this folder from a shell where node works.
+  echo Install Node.js or open this folder from a shell where node works.
   pause
   exit /b 1
 )
 
 if exist ".grindnotes-url" del ".grindnotes-url" >nul 2>nul
-start "GrindNotes server" /min cmd /c "node server.mjs || (echo. & echo GrindNotes server stopped with an error ^(see above^). & pause)"
+start "GrindNotes server" /min node server.mjs
 
 set "GRINDNOTES_URL="
 for /l %%I in (1,1,40) do (
@@ -22,9 +22,7 @@ for /l %%I in (1,1,40) do (
   timeout /t 1 /nobreak >nul
 )
 
-echo Server did not start. Check the minimized "GrindNotes server" window for the error.
-pause
-exit /b 1
+set "GRINDNOTES_URL=http://127.0.0.1:7717/"
 
 :open_app
 where msedge >nul 2>nul
@@ -44,3 +42,4 @@ start "" "%GRINDNOTES_URL%"
 :done
 echo GrindNotes opened at %GRINDNOTES_URL%
 exit /b 0
+

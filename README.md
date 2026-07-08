@@ -6,7 +6,7 @@ One Node server, three HTML/JS files, no build, no packages.
 ## Run
 
 Windows: double-click `GrindNotes.bat`.
-Anywhere: `node server.mjs` → http://127.0.0.1:7718/
+Anywhere: `node server.mjs` → http://127.0.0.1:7717/ (hops to the next port if busy)
 
 ## What's in the window
 
@@ -28,10 +28,10 @@ Anywhere: `node server.mjs` → http://127.0.0.1:7718/
 
 ## The cursor
 
-The arrow dangles from its tip and swings (`cursor.js`): real pendulum — gravity
+The arrow dangles from its tip and swings (inline in `ui.html`, initCursor): real pendulum — gravity
 pulls it back to the normal pose, heavy damping settles it fast, and a hard flick
 can whip it through full 360° loops. Feel knobs are the constants at the top of
-`cursor.js`.
+`initCursor()` in `ui.html`.
 
 ## API (all JSON)
 
